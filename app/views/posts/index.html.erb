@@ -1,0 +1,24 @@
+<div class='posts'>
+  <p class='message'>Loading...</p>
+</div>
+
+<% content_for :javascript do %>
+  <script type='text/json' id='bootstrap'>
+    { "posts": <%== ActiveModel::ArraySerializer.new(@posts).to_json %> }
+  </script>
+
+  <%= javascript_tag do %>
+    $(function() {
+      <% if ENV['POST_WAIT_TIME'].present? %>
+        App.postWaitTime = <%= ENV['POST_WAIT_TIME'].to_i %>;
+      <% end %>
+
+      var postsData = App.bootstrap('posts'),
+          postsCollection = new App.Collections.Posts(postsData);
+
+      setTimeout(function() {
+        new App.Views.PostsShow({ posts: postsCollection, el: $('.posts') }).render();
+      }, App.postWaitTime);
+    });
+  <% end %>
+<% end %>
